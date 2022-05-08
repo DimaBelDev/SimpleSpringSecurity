@@ -1,10 +1,7 @@
 package net.defend.springsecurity.rest;
 
 import net.defend.springsecurity.model.Developer;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +24,18 @@ public class DeveloperRestControllerV1 {
     }
 
     @GetMapping("/{id}")
-    public Developer getById(@PathVariable long id){
+    public Developer getById(@PathVariable Long id){
         return DEVELOPERS.stream().filter(p -> p.getId() == id).findFirst().orElse(null);
+    }
 
+    @PostMapping
+    public Developer create(@RequestBody Developer developer){
+        DEVELOPERS.add(developer);
+        return developer;
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteDeveloperById(@PathVariable Long id){
+        DEVELOPERS.removeIf(p -> p.getId().equals(id));
     }
 }
