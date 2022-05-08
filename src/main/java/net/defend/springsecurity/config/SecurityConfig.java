@@ -1,10 +1,10 @@
 package net.defend.springsecurity.config;
 
-import net.defend.springsecurity.model.Permission;
+
 import net.defend.springsecurity.model.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -16,6 +16,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
@@ -24,9 +25,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 csrf().disable().
                 authorizeRequests().
                 antMatchers("/").permitAll().
-                antMatchers(HttpMethod.GET,"/api/**").hasAnyAuthority(Permission.DEVELOPER_READ.getPermission(), Permission.DEVELOPER_WRITE.getPermission()).
-                antMatchers(HttpMethod.POST, "/api/**").hasAuthority(Permission.DEVELOPER_WRITE.getPermission()).
-                antMatchers(HttpMethod.DELETE, "/api/**").hasAuthority(Permission.DEVELOPER_WRITE.getPermission()).
                 anyRequest().authenticated().
                 and().httpBasic();
     }
@@ -34,10 +32,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     @Override
     protected UserDetailsService userDetailsService() {
-        return new InMemoryUserDetailsManager(User.builder().
-                username("admin").password(passwordEncoder().encode("admin")).
+        return new InMemoryUserDetailsManager(
+                User.builder().
+                username("admin").
+                password(passwordEncoder().encode("admin")).
                 authorities(Role.ADMIN.grantedAuthority()).build(),
-        User.builder().username("user").password(passwordEncoder().encode("user")).
+        User.builder().
+                username("user").
+                password(passwordEncoder().encode("user")).
                 authorities(Role.USER.grantedAuthority()).build()
         );
     }
